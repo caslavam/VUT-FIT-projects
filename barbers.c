@@ -1,10 +1,9 @@
-/*
- Předmět:  Operační systémy
- Projekt2: synchronizace paralelních procesů - problém spícího holiče
- Kontakt:  xcasla03@stud.fit.vutbr.cz
- Autor:    Martin Čáslava
- Datum:    10.4.2011
-*/ 
+//predmet: Operacni systemy
+//autor: xcasla03@stud.fit.vbutbr.cz, Martin Caslava
+//projekt: synchronizace paralelnich procesu - problem spiciho holice
+//prog jazyk: C
+//hodnoceni 14/15
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <ctype.h>
