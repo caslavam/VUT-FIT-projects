@@ -1,6 +1,6 @@
 /*
  Předmět:  Operační systémy
- Projekt2: problém spícího holiče
+ Projekt2: synchronizace paralelních procesů - problém spícího holiče
  Kontakt:  xcasla03@stud.fit.vutbr.cz
  Autor:    Martin Čáslava
  Datum:    10.4.2011
