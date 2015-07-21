@@ -1,5 +1,8 @@
 /*
-autor: xcasla03@stud.fit.vutbr.cz 
+predmet: pocitacove komunikace a site - IPK
+projekt: jednoduchy ftp klient
+autor: xcasla03@stud.fit.vutbr.cz, Martin Caslava
+hodnoceni: 10/10
  */
 
 #include <sys/types.h>
