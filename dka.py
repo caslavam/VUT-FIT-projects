@@ -1,3 +1,10 @@
+//predmet: Principy programovacích jazyků a OOP - IPP
+//autor: xcasla03@stud.fit.vbutbr.cz, Martin Caslava
+//projekt: skript na determinizaci konecneho automatu
+//prog jazyk: Python 3
+//hodnoceni 8/10
+
+
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
 #DKA:xcasla03
