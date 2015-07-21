@@ -16,7 +16,7 @@ Server::Server(Game *game, QHostAddress addr, int port): cerr(stderr, QIODevice:
     // zajistime zpracovani pozadavku vlastnim slotem
     connect(this->server, SIGNAL(newConnection()), this, SLOT(handleNewConnection()));
 
-    // explicitne zakazeme pouziti proxy pouziti proxy
+    // explicitne zakazeme pouziti proxy 
     this->server->setProxy(QNetworkProxy::NoProxy);
     // nastavime max. poèet spojení
     this->server->setMaxPendingConnections(50);
