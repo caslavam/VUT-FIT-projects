@@ -1,0 +1,342 @@
+#!/bin/sh
+export LC_ALL=C #rozliseni velkych a malych písmen
+#=======================================================================
+#datum:   19.3.2011
+#proj1:   zadání A
+#předmět: operační systémy
+#autor:   Martin Čáslava
+#login:   xcasla03
+#email:   xcasla03@stud.fit.vutbr.cz
+#=======================================================================
+#ZPRACOVANI ARGUMENTU
+zaloha=`pwd`
+hlp_msg="ardiff vypisuje zmeny archivu, vytvari rozdilovy archiv nebo aplikuje rozdilovy
+archiv na zdrojovy archiv.
+Pouziti: ardiff [volby] archiv1 archiv2
+Volby:
+  -o SOUBOR  Pokud je cilem skriptu vytvorit archiv, bude vytvoren do souboru
+             se jmenem SOUBOR (plati pro -c a -p).
+  -l         Vypis seznamu souboru, ktere se v zadanych archivech lisi.
+  -c         Vytvoreni rozdiloveho archivu.
+  -p         Aplikace rozdiloveho archivu (argument archiv2) na zdrojovy archiv
+             (argument archiv1).
+  -r         Prepnuti do reverzniho rezimu (plati pro -p)."
+o_param="-"
+l_param=0; c_param=0; p_param=0; r_param=0;
+while getopts ":o:l:cpr" opt; do
+  case "$opt" in
+    o)  o_param="$OPTARG" ;;
+    l)  l_param=1 ;;
+    c)  c_param=1 ;;
+    p)  p_param=1 ;;
+    r)  r_param=1 ;; 
+    \?) echo  "$hlp_msg" >&2; exit 1 ;;
+    :)  echo  "$hlp_msg" >&2; exit 1 ;;
+  esac
+done 
+
+
+
+
+if [ $c_param -eq 1 ] ; then
+  if [ "$o_param" != "-" ] ; then
+#=======================================================================
+#                       1. -C VYTVORENI ROZDILOVEHO ARCHIVU
+#=======================================================================
+  OPTIND=`expr $OPTIND - 1`
+  shift $OPTIND
+
+tmp=`mktemp -d /tmp/ardiff.XXXXXX`
+mkdir $tmp/c
+mkdir $tmp/odpad
+cp $1 $tmp/odpad
+cp $2 $tmp/odpad
+
+cd $tmp/odpad
+#zjisteni typu archivu
+file $1 > typold
+typ_O=`sed 's/\(.*\)\(\ \)\(.*\)\(\ \)\(.*\)\(\ \)\(data\)\(.*\)/\3/'<typold`
+
+file $2 > typnew
+typ_N=`sed 's/\(.*\)\(\ \)\(.*\)\(\ \)\(.*\)\(\ \)\(data\)\(.*\)/\3/'<typnew`
+
+mkdir $tmp/old
+mkdir $tmp/a
+#pokud neni old archiv typu zip
+if [ $typ_O != Zip ];then
+#rozbal tarem
+tar -xf $1 -C $tmp/old
+tar -xf $1 -C $tmp/a
+else
+#jinak unzip
+unzip -q $1 -d $tmp/old 2>"/dev/null"
+unzip -q $1 -d $tmp/a 2>"/dev/null"
+fi
+
+mkdir $tmp/new
+mkdir $tmp/b
+#pokud neni new archiv typu zip
+if [ $typ_N != Zip ];then
+#rozbal tarem
+tar -xf $2 -C $tmp/new
+tar -xf $2 -C $tmp/b
+else
+#jinak unzip
+unzip -q $2 -d $tmp/new 2>"/dev/null"
+unzip -q $2 -d $tmp/b 2>"/dev/null"
+fi 
+
+#vytvori seznamy struktur old a new archivu
+cd $tmp/old
+find * >old_list  #zapise adresarovou strukturu do old_list
+cd $tmp/new
+find * >new_list  #zapise adresarovou strukturu do new_list
+
+#OLD ARCHIV - vytvoreni seznamu pouze se soubory
+cd $tmp/old 
+#cyklus cteni old_list (struktura old archivu) po radcich
+while read radek_old; do
+  test -d $radek_old #test zda je radek s cestou adresar nebo soubor
+  prom_old=$?.
+  if [ $prom_old = 1. ];then #kdyz je soubor zapis si cestu (0=adresar 1=soubor)
+  	cd $tmp/old
+  	echo $radek_old >>soubory_old_cesta #zapis radku s cestou k souboru
+  fi
+done < old_list
+
+#NEW ARCHIV - vytvoreni seznamu pouze se soubory
+cd $tmp/new 
+#cyklus cteni new_list (struktura new archivu) po radcich
+while read radek_new; do
+  test -d $radek_new #test zda je radek s cestou adresar nebo soubor
+  prom_new=$?.
+  if [ $prom_new = 1. ];then #kdyz je soubor zapis si cestu (0=adresar 1=soubor)
+  	cd $tmp/new
+  	echo $radek_new >>soubory_new_cesta #zapis radku s cestou k souboru
+  fi
+done < new_list
+
+mkdir $tmp/docasne
+cd $tmp/new
+mv soubory_new_cesta $tmp/docasne
+cd $tmp/old
+mv soubory_old_cesta $tmp/docasne
+cd $tmp/docasne
+
+diff -up soubory_old_cesta soubory_new_cesta > patch.txt #diff na zjisteni souboru ktere NEJSOU v obou archivech
+
+#z diffu odrezavam nepotrebne znaky
+grep ^-[^-] <patch.txt >>rozdilne_soubory+- 
+grep ^+[^+] <patch.txt >>rozdilne_soubory+-
+#pres sed odfiltruju (+/-)
+sed 's/\(^[-+]\)\([aA-zZ]\)/\2/' <rozdilne_soubory+- >rozdily_jeden #VYPIS SOUBORU KTERE NEJSOU V OBOU ARCHIVECH
+mv rozdily_jeden $tmp
+
+cd $tmp/new
+rm new_list
+cd $tmp/old
+rm old_list
+cd $tmp
+
+diff --brief -r -N new old > rozdilek #zjisteni OBSAHOVE ROZDILNYCH SOUBORU (bohuzel nerozezna adresar od souboru pokud maji stejne jmeno) viz komentar nize
+mv rozdilek $tmp/docasne
+cd $tmp/docasne
+grep and <rozdilek >rozdily #odstrani vypis "file_a is a directory while file_b is regular file" tim zustanou pouze soubory
+tr " " "\n" <rozdily | #filtrace nepotrebnych znaku
+grep [/] |
+grep ^[new] |
+sed "s/^[a-z]\{3\}\///" >rozdily_oba
+#cut -b 1-4 --complement >rozdily_oba  #VYPIS SHODNYHOCH SOUBORU V NAZVU ALE ROZDILNYCH V OBSAHU
+mv rozdily_oba $tmp
+cd $tmp
+
+#ziskani cest k rozdilnym souborum (oba)
+grep [/] <rozdily_oba |
+sed 's/\(.*\)\([/]\)\(.*\)/\1/'>cesty_final_oba
+cd $tmp
+
+#vytvoreni struktury podle cest (oba)
+while read cesta_oba; do
+mkdir -p $tmp/c/$cesta_oba
+done < cesty_final_oba
+
+#vytvoreni rozdilovych souboru (oba)
+while read line_oba; do
+diff -aurN "a/$line_oba" "b/$line_oba" > "c/$line_oba.patch"
+done < rozdily_oba
+
+#ziskani cest k rozdilnym souborum (jeden)
+grep [/] <rozdily_jeden |
+sed 's/\(.*\)\([/]\)\(.*\)/\1/'>cesty_final_jeden
+cd $tmp
+
+#vytvoreni struktury podle cest (jeden)
+while read cesta_jeden; do
+mkdir -p $tmp/c/$cesta_jeden
+done < cesty_final_jeden
+
+#vytvoreni rozdilovych souboru (jeden)
+#while read line_jeden; do
+#diff -aurN "empty" "b/$line_jeden" > "c/$line_jeden.patch"
+#done < rozdily_jeden
+#vytvoreni rozdilovych souboru (jeden)
+while read line_jeden; do
+
+if [ ! -f "a/$line_jeden" ] ; then
+  diff -aurN "empty" "b/$line_jeden" > "c/$line_jeden.doritky"
+  echo $line_jeden > dobryden
+  dobryden=`sed "s/\//\\\\\\\\\//g" < dobryden`
+  sed "1,1 s/empty/a\/$dobryden/" < "c/$line_jeden.doritky" > "c/$line_jeden.patch"
+  rm "c/$line_jeden.doritky"
+fi
+if [ ! -f "b/$line_jeden" ] ; then
+  diff -aurN "a/$line_jeden"  "empty"  > "c/$line_jeden.doritky"
+  echo $line_jeden > dobryden
+  dobryden=`sed "s/\//\\\\\\\\\//g" < dobryden`
+  sed "2,2 s/empty/b\/$dobryden/" < "c/$line_jeden.doritky" > "c/$line_jeden.patch"
+  rm "c/$line_jeden.doritky"
+fi
+done < rozdily_jeden
+
+echo $o_param >soubor
+pripona=`sed 's/\(.*\)\([.]\)\(.*\)/\3/' < soubor`
+#echo pripona $pripona
+
+cd c
+if [ "$pripona" = "zip" ] ; then
+zip  -qr "$zaloha/$o_param" *
+fi
+
+if [ "$pripona" = "tgz" ] ; then
+tar  -cf "$zaloha/$o_param" *
+fi
+
+if [ "$pripona" = "bz2" ] ; then
+zip  -qr "$zaloha/$o_param" *
+fi
+
+if [ "$pripona" = "tar" ] ; then
+zip  -qr "$zaloha/$o_param" *
+fi
+
+#vymaz tmp 
+cd $tmp
+rm -r $tmp
+
+  else
+    "$hlp_msg"
+  fi
+elif [ $p_param -eq 1 ] ; then
+  if [ "$o_param" != "-" ] ; then
+    echo "aplikovani patche"
+  else
+    "$hlp_msg" >&2
+  fi
+elif [ $l_param -eq 1 ] ; then
+#========================================================================================
+#                                   -l VYPIS ROZDILU
+#========================================================================================  
+  OPTIND=`expr $OPTIND - 2`
+  shift $OPTIND
+
+tmp=`mktemp -d /tmp/ardiff.XXXXXX`
+
+mkdir $tmp/odpad
+cp $1 "$tmp/odpad"
+cp $2 "$tmp/odpad"
+
+cd $tmp/odpad
+#zjisteni typu archivu
+file $1 > typold
+typ_O=`sed 's/\(.*\)\(\ \)\(.*\)\(\ \)\(.*\)\(\ \)\(data\)\(.*\)/\3/'<typold`
+
+file $2 > typnew
+typ_N=`sed 's/\(.*\)\(\ \)\(.*\)\(\ \)\(.*\)\(\ \)\(data\)\(.*\)/\3/'<typnew`
+
+mkdir $tmp/old
+#pokud neni old archiv typu zip
+if [ $typ_O != Zip ];then
+#rozbal tarem
+tar -xf $1 -C $tmp/old
+else
+#jinak unzip
+unzip -q $1 -d $tmp/old 2>"/dev/null"
+fi
+
+mkdir $tmp/new
+#pokud neni new archiv typu zip
+if [ $typ_N != Zip ];then
+#rozbal tarem
+tar -xf $2 -C $tmp/new
+else
+#jinak unzip
+unzip -q $2 -d $tmp/new 2>"/dev/null"
+fi 
+
+#vytvori seznamy struktur old a new archivu
+cd $tmp/old
+find * >old_list  #zapise adresarovou strukturu do old_list
+cd $tmp/new
+find * >new_list  #zapise adresarovou strukturu do new_list
+
+#OLD ARCHIV - vytvoreni seznamu pouze se soubory
+cd $tmp/old 
+#cyklus cteni old_list (struktura old archivu) po radcich
+while read radek_old; do
+  test -d $radek_old #test zda je radek s cestou adresar nebo soubor
+  prom_old=$?.
+  if [ $prom_old = 1. ];then #kdyz je soubor zapis si cestu (0=adresar 1=soubor)
+  	cd $tmp/old
+  	echo $radek_old >>soubory_old_cesta #zapis radku s cestou k souboru
+  fi
+done < old_list
+
+#NEW ARCHIV - vytvoreni seznamu pouze se soubory
+cd $tmp/new 
+#cyklus cteni new_list (struktura new archivu) po radcich
+while read radek_new; do
+  test -d $radek_new #test zda je radek s cestou adresar nebo soubor
+  prom_new=$?.
+  if [ $prom_new = 1. ];then #kdyz je soubor zapis si cestu (0=adresar 1=soubor)
+  	cd $tmp/new
+  	echo $radek_new >>soubory_new_cesta #zapis radku s cestou k souboru
+  fi
+done < new_list
+
+mkdir $tmp/docasne
+cd $tmp/new
+mv soubory_new_cesta $tmp/docasne
+cd $tmp/old
+mv soubory_old_cesta $tmp/docasne
+cd $tmp/docasne
+
+diff -up soubory_old_cesta soubory_new_cesta > patch.txt #diff na zjisteni souboru ktere NEJSOU v obou archivech
+#z diffu odrezavam nepotrebne znaky
+grep ^-[^-] <patch.txt >>rozdilne_soubory+- 
+grep ^+[^+] <patch.txt >>rozdilne_soubory+-
+#pres sed odfiltruju (+/-)
+sed 's/\(^[-+]\)\([aA-zZ]\)/\2/' <rozdilne_soubory+- #VYPIS SOUBORU KTERE NEJSOU V OBOU ARCHIVECH
+
+cd $tmp/new
+rm new_list
+cd $tmp/old
+rm old_list
+cd $tmp/
+
+diff --brief -r -N new old > rozdilek #zjisteni OBSAHOVE ROZDILNYCH SOUBORU (bohuzel nerozezna adresar od souboru pokud maji stejne jmeno) viz komentar nize
+mv rozdilek $tmp/docasne
+cd $tmp/docasne
+grep and <rozdilek >rozdily #odstrani vypis "file_a is a directory while file_b is regular file" tim zustanou pouze soubory
+tr " " "\n" <rozdily | #filtrace nepotrebnych znaku
+grep [/] |
+grep ^[new]  |
+sed "s/^[a-z]\{3\}\///"
+#cut -b "1-4" #--complement  #VYPIS SHODNYHOCH SOUBORU V NAZVU ALE ROZDILNYCH V OBSAHU
+
+#vymaz tmp 
+cd $tmp
+rm -r $tmp
+
+else
+   "$hlp_msg" >&2
+fi

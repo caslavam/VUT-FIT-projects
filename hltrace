@@ -1,0 +1,86 @@
+#!/bin/sh
+export LC_ALL=C #rozlišení velkých a malých písmen
+#==================================================================== 
+#datum:   15.3.2011
+#proj1:   zadání B
+#předmět: operační systémy
+#autor:   Martin Čáslava
+#login:   xcasla03
+#email:   xcasla03@stud.fit.vutbr.cz
+
+#popis funkčosti:
+#skript zvýrazňuje syntax stopy od strace
+#skript pracuje jako textový filtr
+#=====================================================================
+#ZPRACOVANI ARGUMENTU
+err_msg="neplatna kombinace parametru ./hltrace -h pro vypis napovedy"
+hlp_msg="hltrace zvyrazni syntax stopy od strace.
+Pouziti: hltrace [volby] <stopa.strace >stopa.html
+Volby:
+  -s SYSCALL  Specialne zvyrazni volani SYSCALL."
+
+if [ "$#" -gt 2 ];then
+echo $err_msg >&2
+exit
+fi
+
+if [ "$#" = 2 ] &&  [ "$1" != -s ];then
+echo $err_msg >&2
+exit
+fi
+
+if [ "$1" != -h ] || [ "$1" = -s ]  && [ "$#" = 1 ];then
+echo $err_msg >&2
+exit
+fi
+
+if [ "$1" = -h ] && [ "$#" = 1 ];then
+echo "$hlp_msg"
+exit
+fi
+
+param="1234DSFGHNJHG" #proste neco co nemuze byt v syscall
+if [ "$#" = 2 ] && [ "$1" = -s ];then
+param=$2
+fi
+#=====================================================================
+echo "<html>
+<style>
+.pid { color:darkred; } 
+.ts { color:navy; }
+.number { color:red; }
+.const { color:green; }
+.string { color:blue; }
+.hlcall { text-decoration:none; font-weight:bold; color:black; }
+.call { text-decoration:none; color:olive; }
+</style>
+<body><pre>"
+
+#poradi trid: 1.string
+#	      2.hlcall (-s)
+#             3.call
+#             4.const
+#	      5.pid
+#             6.ts
+#             7.number
+
+paramp=" $param\("
+paramp2="$param\("
+sed -r "s/&/\&amp;/g"|
+sed -r "s/</\&lt;/"| 
+sed -r "s/>/\&gt;/"|
+sed 's/\("\)\([^"]*\)\("\)/\<span class="string">\1\2\3\<\/span>/g'| 
+sed -r "s/${paramp}/ <a href=\"http:\/\/www.kernel.org\/doc\/man-pages\/online\/pages\/man2\/${param}.2.html\" class=\"hlcall\">${param}<\/a>(/"| 
+sed -r "s/${paramp2}/<a href=\"http:\/\/www.kernel.org\/doc\/man-pages\/online\/pages\/man2\/${param}.2.html\" class=\"hlcall\">${param}<\/a>(/"| 
+sed 's/\([0-9]\)\([0-9]\)\(\ \)\([a-z]\)\([^(]*\)\((\)/\1\2\3\<a href="http:\/\/www.kernel.org\/doc\/man-pages\/online\/pages\/man2\/\4\5\.2.html" class="call">\4\5\<\/a>\6/'| 
+sed 's/\(^[a-z]\)\([^(]*\)\((\)/\<a href="http:\/\/www.kernel.org\/doc\/man-pages\/online\/pages\/man2\/\1\2\.2.html" class=" call">\1\2\<\/a>\3/'|
+sed 's/\([{=[(,)|]\)\([A-Z]\)\([_,A-Z]\)\([^(,)|]*\)/\1\<span class="const">\2\3\4\<\/span>/g'| 
+sed 's/\(\ \)\([A-Z]\)\([^(,)|]*\)/\1\<span class="const">\2\3\<\/span>/g'| 
+sed 's/\(^[0-9]*\)\(\ \)/\<span class="pid">\1\<\/span>\2/'| 
+sed 's/\([0-9]*\)\(\.\)\([0-9]*\)\(\ \)/\<span class="ts">\1\2\3\<\/span>\4/'|
+sed 's/\([^=]\)\([0-9]\)\(x\)\([^,)]*\)/\1\<span class="number">\2\3\4\<\/span>/g'| 
+sed 's/\([,]\)\(\ \)\([0-9]\)\([0-9]*\)/\1\2\<span class="number">\3\4\<\/span>/g'| 
+sed 's/\(\ \)\([=]\)\(\ \)\([0-9]\)\([0-9]*\)/\1\2\3\<span class="number">\4\5\<\/span>/g'| 
+sed 's/\((\)\([0-9]*\)\([,)]\)/\1\<span class="number">\2\<\/span>\3/g' |
+sed 's/\(-\)\([0-9]\)\([0-9]*\)/\<span class="number">\1\2\3\<\/span>/g'
+echo "</pre></body></html>"
