@@ -1,7 +1,7 @@
 #!/bin/sh
 export LC_ALL=C #rozlišení velkých a malých písmen
 #predmet: Operacni systemy
-#autor: xcasla03@stud.fit.vbutbr.cz, Martin Caslava
+#autor: xcasla03@stud.fit.vutbr.cz, Martin Caslava
 #projekt: skript pro zvyrazneni syntaxe stopy od strace (textovy filtr)
 #prog jazyk: shell
 #hodnoceni: 15/15
