@@ -1,5 +1,5 @@
 //predmet: Seminar C++
-//autor: xcasla03@stud.fit.vbutbr.cz, Martin Caslava
+//autor: xcasla03@stud.fit.vutbr.cz, Martin Caslava
 //projekt: implementace herniho serveru pro deskovou hru dama (pouze dilci modul celeho programu)
 //prog jazyk: C++
 //hodnoceni: zapocteno
