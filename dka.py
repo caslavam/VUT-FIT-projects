@@ -2,7 +2,7 @@
 #autor: xcasla03@stud.fit.vutbr.cz, Martin Caslava
 #projekt: skript na determinizaci konecneho automatu
 #prog jazyk: Python 3
-#hodnoceni 9/10
+#hodnoceni: 9/10
 
 
 #!/usr/bin/python3
