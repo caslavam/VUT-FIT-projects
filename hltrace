@@ -4,7 +4,7 @@ export LC_ALL=C #rozlišení velkých a malých písmen
 #autor: xcasla03@stud.fit.vbutbr.cz, Martin Caslava
 #projekt: skript pro zvyrazneni syntaxe stopy od strace (textovy filtr)
 #prog jazyk: shell
-#hodnoceni 15/15
+#hodnoceni: 15/15
 
 #ZPRACOVANI ARGUMENTU
 err_msg="neplatna kombinace parametru ./hltrace -h pro vypis napovedy"
