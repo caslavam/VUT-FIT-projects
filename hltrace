@@ -1,17 +1,11 @@
 #!/bin/sh
 export LC_ALL=C #rozlišení velkých a malých písmen
-#==================================================================== 
-#datum:   15.3.2011
-#proj1:   zadání B
-#předmět: operační systémy
-#autor:   Martin Čáslava
-#login:   xcasla03
-#email:   xcasla03@stud.fit.vutbr.cz
+#predmet: Operacni systemy
+#autor: xcasla03@stud.fit.vbutbr.cz, Martin Caslava
+#projekt: skript pro zvyrazneni syntaxe stopy od strace (textovy filtr)
+#prog jazyk: shell
+#hodnoceni 15/15
 
-#popis funkčosti:
-#skript zvýrazňuje syntax stopy od strace
-#skript pracuje jako textový filtr
-#=====================================================================
 #ZPRACOVANI ARGUMENTU
 err_msg="neplatna kombinace parametru ./hltrace -h pro vypis napovedy"
 hlp_msg="hltrace zvyrazni syntax stopy od strace.
@@ -39,7 +33,7 @@ echo "$hlp_msg"
 exit
 fi
 
-param="1234DSFGHNJHG" #proste neco co nemuze byt v syscall
+param="1234DSFGHNJHG"
 if [ "$#" = 2 ] && [ "$1" = -s ];then
 param=$2
 fi
