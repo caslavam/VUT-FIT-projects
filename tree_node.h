@@ -1,3 +1,9 @@
+//predmet: Bakalarska prace
+//autor: xcasla03@stud.fit.vbutbr.cz, Martin Caslava
+//projekt: Bakalarska prace - graficka podoba uzlu stavoveho prostoru (pouze dilci modul celeho programu)
+//prog: jazyk: C++
+//hodnoceni: doufejme ze kladne:-)
+
 #ifndef TREE_NODE_H
 #define TREE_NODE_H
 
