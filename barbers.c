@@ -1,5 +1,5 @@
 //predmet: Operacni systemy
-//autor: xcasla03@stud.fit.vbutbr.cz, Martin Caslava
+//autor: xcasla03@stud.fit.vutbr.cz, Martin Caslava
 //projekt: synchronizace paralelnich procesu - problem spiciho holice
 //prog jazyk: C
 //hodnoceni: 14/15
