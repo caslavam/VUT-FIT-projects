@@ -1,7 +1,7 @@
 #!/bin/sh
 export LC_ALL=C #rozliseni velkych a malych písmen
 #predmet: Operacni systemy
-#autor: xcasla03@stud.fit.vbutbr.cz, Martin Caslava
+#autor: xcasla03@stud.fit.vutbr.cz, Martin Caslava
 #projekt: skript pro zjisteni rozdilu dvou archivu (tar. rar. zip)
 #prog jazyk: shell
 #hodnoceni: 14/15
