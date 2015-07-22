@@ -16,7 +16,7 @@
  * Trida reprezentujici grafickou nadstavbu uzlu stromu
  */
 
-class tree_node : public QGraphicsItem
+class Tree_node : public QGraphicsItem
 {
 public:
     int type;//1 - root, 2- normalni uzel
