@@ -2,7 +2,7 @@
 //autor: xcasla03@stud.fit.vbutbr.cz, Martin Caslava
 //projekt: synchronizace paralelnich procesu - problem spiciho holice
 //prog jazyk: C
-//hodnoceni 14/15
+//hodnoceni: 14/15
 
 #include <stdio.h>
 #include <stdlib.h>
