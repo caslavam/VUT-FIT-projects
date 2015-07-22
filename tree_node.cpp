@@ -12,18 +12,18 @@
 
 
 extern game current_game;
-tree_node::tree_node( int id )
+Tree_node::tree_node( int id )
 {
     this->id = id;
 }
 
-QRectF tree_node::boundingRect() const
+QRectF Tree_node::boundingRect() const
 {
     // outer most edges
     return QRectF(0,0,30,30);
 }
 
-void tree_node::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
+void Tree_node::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
 {
     QRectF rect = boundingRect();
     QPen pen(Qt::black, 2);
