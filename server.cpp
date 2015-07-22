@@ -1,11 +1,8 @@
-/**
-implementace tridy server.h\n
-@author Martin Caslava - xcasla03@stud.fit.vutbr.cz
-@author Vojtech Prikryl - xprikr28@stud.fit.vutbr.cz
-*
-<b>popis tridy:</b>\n
-trida predstavujici server - chovani podobne jako u klienta
-**/
+//predmet: Seminar C++
+//autor: xcasla03@stud.fit.vbutbr.cz, Martin Caslava
+//projekt: implementace herniho serveru pro deskovou hru dama (pouze dilci modul celeho programu)
+//prog jazyk: C++
+//hodnoceni zapocteno
 
 #include "server.h"
 
@@ -13,21 +10,21 @@ Server::Server(Game *game, QHostAddress addr, int port): cerr(stderr, QIODevice:
 {
     this->game=game;
     this->socket=NULL;
-    // vytvoøíme TCP server
+    // vytvorime TCP server
     this->server = new QTcpServer(this);
 
-    // zajistíme zpracování požadavkù vlastním slotem
+    // zajistime zpracovani pozadavku vlastnim slotem
     connect(this->server, SIGNAL(newConnection()), this, SLOT(handleNewConnection()));
 
-    // explicitnì zakážeme použití proxy
+    // explicitne zakazeme pouziti proxy 
     this->server->setProxy(QNetworkProxy::NoProxy);
-    // nastavíme max. poèet spojení
+    // nastavime max. poÃ¨et spojenÃ­
     this->server->setMaxPendingConnections(50);
 
-    // nastavíme IP a port pro naslouchání
+    // nastavÃ­me IP a port pro naslouchani
     bool listening = this->server->listen(addr, port);
 
-    // pokud se TCP server nepodaøilo spustit na dané IP a portu
+    // pokud se TCP server nepodarilo spustit na danÃ© IP a portu
     if(not listening)
     {
         this->game->printInfo(ERROR,QString("Server error"),QString("Server couldn't have been started"));
@@ -49,7 +46,7 @@ Server::~Server(){
 */
 void Server::handleNewConnection()
 {
-    // získáme socket
+    // ziskamesocket
     this->socket = this->server->nextPendingConnection();
     if(!this->socket)
         return;
@@ -78,7 +75,7 @@ void Server::socketWrite(QString data)
 */
 void Server::handleReply()
 {
-    // získáme socket (skrz objekt, který vyslal signál)
+    // ziskame socket (skrz objekt, ktery vyslal signal)
     this->socket = qobject_cast<QTcpSocket*>(this->sender());
     QByteArray rawdata = this->socket->readAll();
 

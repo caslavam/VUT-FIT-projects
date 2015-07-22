@@ -1,6 +1,8 @@
-/*
-autor: xcasla03@stud.fit.vutbr.cz 
- */
+//predmet: Pocitacove komunikace a site - IPK
+//autor: xcasla03@stud.fit.vbutbr.cz, Martin Caslava
+//projekt: jednoduchy ftp klient
+//prog jazyk: C/C++
+//hodnoceni 10/10
 
 #include <sys/types.h>
 #include <sys/socket.h>
