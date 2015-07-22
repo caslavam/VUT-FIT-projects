@@ -1,13 +1,11 @@
 #!/bin/sh
 export LC_ALL=C #rozliseni velkych a malych písmen
-#=======================================================================
-#datum:   19.3.2011
-#proj1:   zadání A
-#předmět: operační systémy
-#autor:   Martin Čáslava
-#login:   xcasla03
-#email:   xcasla03@stud.fit.vutbr.cz
-#=======================================================================
+#predmet: Operacni systemy
+#autor: xcasla03@stud.fit.vbutbr.cz, Martin Caslava
+#projekt: skript pro zjisteni rozdilu dvou archivu (tar. rar. zip)
+#prog jazyk: shell
+#hodnoceni 14/15
+
 #ZPRACOVANI ARGUMENTU
 zaloha=`pwd`
 hlp_msg="ardiff vypisuje zmeny archivu, vytvari rozdilovy archiv nebo aplikuje rozdilovy
